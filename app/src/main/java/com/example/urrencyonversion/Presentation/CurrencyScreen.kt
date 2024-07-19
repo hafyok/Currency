@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -41,16 +42,24 @@ fun CurrencyScreen(viewModel: CurrencyViewModel = CurrencyViewModel(), modifier:
                     modifier = Modifier.menuAnchor()
                 )
             } else {
-                TextField(value = rates.entries.toString(),
+                TextField(value = "RUB",
                     onValueChange = {},
                     readOnly = true,
+                    trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)},
                     modifier = Modifier.menuAnchor()
                 )
+
+
                 ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    rates.entries.toList().forEach{ item ->
-                        DropdownMenuItem(text = { Text("${item.key}: ${item.value.value}") }, onClick = { /*TODO*/ })
+                    rates.forEach { item ->
+                        DropdownMenuItem(
+                            text = {
+                                Text("${item.key}: ${item.value.value}")
+                                   },
+                            onClick = { /*TODO*/ })
                     }
                 }
+                
                 /*LazyColumn {
                     items(rates.entries.toList()) { entry ->
                         Text(text = "${entry.key}: ${entry.value.value}")
