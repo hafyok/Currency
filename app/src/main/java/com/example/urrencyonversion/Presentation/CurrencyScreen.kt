@@ -1,12 +1,15 @@
 package com.example.urrencyonversion.Presentation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -21,36 +24,60 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.urrencyonversion.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurrencyScreen(viewModel: CurrencyViewModel = CurrencyViewModel(), modifier: Modifier = Modifier) {
+fun CurrencyScreen(
+    viewModel: CurrencyViewModel = CurrencyViewModel(),
+    modifier: Modifier = Modifier
+) {
     val rates by viewModel.currencyRates.collectAsState()
     val error by viewModel.error.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var text by rememberSaveable { mutableStateOf("") }
-    var currentCurrency by rememberSaveable { mutableStateOf("RUB") }
+    var currentCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
 
     LaunchedEffect(Unit) {
         viewModel.fetchRates()
     }
-    Column {
-        Spacer(modifier = Modifier.padding(vertical = 16.dp))
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center // Центрирование содержимого внутри Box
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.baseline_currency_exchange_24), // Замените на вашу иконку
+            contentDescription = "Centered Icon"
+        )
+    }
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        //Spacer(modifier = Modifier.padding(vertical = 16.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 8.dp),
+                .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp) // Отступ между элементами
         ) {
             OutlinedTextField(
                 value = text,
-                onValueChange = {text = it},
+                onValueChange = { newText -> if (newText.all { it.isDigit() }) text = newText },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 //readOnly = true,
-                label = {if (error != null) Text("Error: $error") else Text("RUB")},
+                label = {
+                    if (error != null) Text("Error: $error")
+                    else Text("RUB (Российский рубль)")
+                        },
                 modifier = Modifier.weight(1f)
             )
 
@@ -74,16 +101,19 @@ fun CurrencyScreen(viewModel: CurrencyViewModel = CurrencyViewModel(), modifier:
                     rates.forEach { item ->
                         DropdownMenuItem(
                             text = {
-                                Text("${item.key}: ${item.value.value}")
+                                Text("${item.key} (${item.value.name})")
                             },
                             onClick = {
-                                currentCurrency = "${item.key}: ${item.value.value}"
+                                currentCurrency = "${item.key} (${item.value.name})"
                                 expanded = false
                             }
                         )
                     }
                 }
             }
+        }
+        Button(onClick = { /*TODO*/ }) {
+            Text(text = "Convert")
         }
     }
 }
