@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -18,8 +19,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,6 +31,8 @@ fun CurrencyScreen(viewModel: CurrencyViewModel = CurrencyViewModel(), modifier:
     val rates by viewModel.currencyRates.collectAsState()
     val error by viewModel.error.collectAsState()
     var expanded by remember { mutableStateOf(false) }
+    var text by rememberSaveable { mutableStateOf("") }
+    var currentCurrency by rememberSaveable { mutableStateOf("RUB") }
 
     LaunchedEffect(Unit) {
         viewModel.fetchRates()
@@ -41,19 +46,22 @@ fun CurrencyScreen(viewModel: CurrencyViewModel = CurrencyViewModel(), modifier:
             horizontalArrangement = Arrangement.spacedBy(8.dp) // Отступ между элементами
         ) {
             OutlinedTextField(
-                value = if (error != null) "Error: $error" else "No Error",
-                onValueChange = {},
+                value = text,
+                onValueChange = {text = it},
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 //readOnly = true,
-                modifier = Modifier.weight(1f) // Задает равную ширину
+                label = {if (error != null) Text("Error: $error") else Text("RUB")},
+                modifier = Modifier.weight(1f)
             )
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded },
-                modifier = Modifier.weight(1f) // Задает равную ширину
+                modifier = Modifier.weight(1f)
             ) {
                 OutlinedTextField(
-                    value = "RUB",
+                    value = currentCurrency,
+                    label = { Text(text = "Валюта")},
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = {
@@ -68,7 +76,11 @@ fun CurrencyScreen(viewModel: CurrencyViewModel = CurrencyViewModel(), modifier:
                             text = {
                                 Text("${item.key}: ${item.value.value}")
                             },
-                            onClick = { /*TODO*/ })
+                            onClick = {
+                                currentCurrency = "${item.key}: ${item.value.value}"
+                                expanded = false
+                            }
+                        )
                     }
                 }
             }
