@@ -40,7 +40,7 @@ fun CurrencyScreen(
     val rates by viewModel.currencyRates.collectAsState()
     val error by viewModel.error.collectAsState()
     var expanded by remember { mutableStateOf(false) }
-    var text by rememberSaveable { mutableStateOf("") }
+    var amount by rememberSaveable { mutableStateOf("") }
     var currentCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
 
     LaunchedEffect(Unit) {
@@ -70,8 +70,8 @@ fun CurrencyScreen(
         ) {
             //TODO() Добавить запятые и не целые значения в форму
             OutlinedTextField(
-                value = text,
-                onValueChange = { newText -> if (newText.all { it.isDigit() }) text = newText },
+                value = amount,
+                onValueChange = { newText -> if (newText.all { it.isDigit() }) amount = newText },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 //readOnly = true,
                 label = {
@@ -106,13 +106,17 @@ fun CurrencyScreen(
                             onClick = {
                                 currentCurrency = "${item.key} (${item.value.name})"
                                 expanded = false
+                                viewModel.updateCurrency(item.key)
                             }
                         )
                     }
                 }
             }
         }
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = {
+            viewModel.updateAmount(amount)
+            viewModel.calculation()
+        }) {
             Text(text = "Convert")
         }
     }

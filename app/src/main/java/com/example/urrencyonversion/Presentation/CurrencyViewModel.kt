@@ -1,5 +1,6 @@
 package com.example.urrencyonversion.Presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.urrencyonversion.Data.ApiFactory.currencyApi
@@ -18,6 +19,15 @@ class CurrencyViewModel: ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _amount = MutableStateFlow("")
+    val amount: StateFlow<String> = _amount.asStateFlow()
+
+    private val _currentCurrency = MutableStateFlow("RUB (Российский рубль)")
+    val currentCurrency: StateFlow<String> = _currentCurrency.asStateFlow()
+
+    private val _result = MutableStateFlow("")
+    val result: StateFlow<String> = _result.asStateFlow()
+
     fun fetchRates() {
         viewModelScope.launch {
             try {
@@ -33,5 +43,22 @@ class CurrencyViewModel: ViewModel() {
                 _error.value = e.message
             }
         }
+    }
+
+    fun updateCurrency(newCurrency: String){
+        _currentCurrency.value = newCurrency
+        Log.d("Currencies", currencyRates.value[_currentCurrency.value].toString())
+    }
+
+    fun updateAmount(newAmount: String){
+        _amount.value = newAmount
+    }
+
+    fun calculation(){
+        val rate = _currencyRates.value[_currentCurrency.value]?.value ?: 1.0
+        val amountValue = _amount.value.toDoubleOrNull() ?: 0.0
+        val nominal = _currencyRates.value[_currentCurrency.value]?.nominal ?: 1
+        _result.value = (amountValue / (rate / nominal)).toString()
+        Log.d("Currencies", _result.value)
     }
 }
