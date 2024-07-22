@@ -62,13 +62,13 @@ fun CurrencyScreen(
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //Spacer(modifier = Modifier.padding(vertical = 16.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp) // Отступ между элементами
         ) {
+            //TODO() Добавить запятые и не целые значения в форму
             OutlinedTextField(
                 value = text,
                 onValueChange = { newText -> if (newText.all { it.isDigit() }) text = newText },
@@ -77,7 +77,7 @@ fun CurrencyScreen(
                 label = {
                     if (error != null) Text("Error: $error")
                     else Text("RUB (Российский рубль)")
-                        },
+                },
                 modifier = Modifier.weight(1f)
             )
 
@@ -88,7 +88,7 @@ fun CurrencyScreen(
             ) {
                 OutlinedTextField(
                     value = currentCurrency,
-                    label = { Text(text = "Валюта")},
+                    label = { Text(text = "Валюта") },
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = {
