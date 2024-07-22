@@ -41,18 +41,16 @@ fun CurrencyScreen(
     val error by viewModel.error.collectAsState()
     var expanded1 by remember { mutableStateOf(false) }
     var expanded2 by remember { mutableStateOf(false) }
-    var amountFrom by rememberSaveable { mutableStateOf("") }
-    var amountTo by rememberSaveable { mutableStateOf("") }
+    var amount by rememberSaveable { mutableStateOf("") }
     var currentFirstCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
     var currentSecondCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
-
 
     LaunchedEffect(Unit) {
         viewModel.fetchRates()
     }
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center // Центрирование содержимого внутри Box
+        contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource(id = R.drawable.baseline_currency_exchange_24),
@@ -70,7 +68,7 @@ fun CurrencyScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp) // Отступ между элементами
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ExposedDropdownMenuBox(
                 expanded = expanded1,
@@ -141,28 +139,19 @@ fun CurrencyScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp) // Отступ между элементами
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             //TODO() Добавить запятые и не целые значения в форму
             OutlinedTextField(
-                value = amountFrom,
-                onValueChange = { newText -> if (newText.all { it.isDigit() }) amountFrom = newText },
+                value = amount,
+                onValueChange = { newText -> if (newText.all { it.isDigit() }) amount = newText },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                label = { Text("Начальная сумма") },
-                modifier = Modifier.weight(1f)
-            )
-
-            //TODO() Добавить запятые и не целые значения в форму
-            OutlinedTextField(
-                value = amountTo,
-                onValueChange = { newText -> if (newText.all { it.isDigit() }) amountTo = newText },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                label = { Text("Конечная сумма") },
+                label = { Text("Сумма") },
                 modifier = Modifier.weight(1f)
             )
         }
         Button(onClick = {
-            viewModel.updateAmount(amountFrom)
+            viewModel.updateFirstAmount(amount)
             viewModel.calculation()
         }) {
             Text(text = "Convert")

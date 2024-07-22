@@ -20,16 +20,16 @@ class CurrencyViewModel: ViewModel() {
     val error: StateFlow<String?> = _error.asStateFlow()
 
     private val _amount = MutableStateFlow("")
-    val amount: StateFlow<String> = _amount.asStateFlow()
+    //val amountFirst: StateFlow<String> = _amountFirst.asStateFlow()
 
     private val _currentFirstCurrency = MutableStateFlow("RUB (Российский рубль)")
-    val currentFirstCurrency: StateFlow<String> = _currentFirstCurrency.asStateFlow()
+    //val currentFirstCurrency: StateFlow<String> = _currentFirstCurrency.asStateFlow()
 
     private val _currentSecondCurrency = MutableStateFlow("RUB (Российский рубль)")
-    val currentSecondCurrency: StateFlow<String> = _currentSecondCurrency.asStateFlow()
+    //val currentSecondCurrency: StateFlow<String> = _currentSecondCurrency.asStateFlow()
 
     private val _result = MutableStateFlow("")
-    val result: StateFlow<String> = _result.asStateFlow()
+    //val result: StateFlow<String> = _result.asStateFlow()
 
     fun fetchRates() {
         viewModelScope.launch {
@@ -58,15 +58,20 @@ class CurrencyViewModel: ViewModel() {
         Log.d("Currencies", currencyRates.value[_currentSecondCurrency.value].toString())
     }
 
-    fun updateAmount(newAmount: String){
+    fun updateFirstAmount(newAmount: String){
         _amount.value = newAmount
     }
 
     fun calculation(){
-        val rate = _currencyRates.value[_currentFirstCurrency.value]?.value ?: 1.0
-        val amountValue = _amount.value.toDoubleOrNull() ?: 0.0
-        val nominal = _currencyRates.value[_currentFirstCurrency.value]?.nominal ?: 1
-        _result.value = (amountValue / (rate / nominal)).toString()
+        val rateFirst = _currencyRates.value[_currentFirstCurrency.value]?.value ?: 1.0
+        val amountValueFirst = _amount.value.toDoubleOrNull() ?: 0.0
+        val nominalFirst = _currencyRates.value[_currentFirstCurrency.value]?.nominal ?: 1
+        val firstCur = (amountValueFirst * (rateFirst / nominalFirst))
+
+        val rateSecond = _currencyRates.value[_currentSecondCurrency.value]?.value ?: 1.0
+        val nominalSecond = _currencyRates.value[_currentSecondCurrency.value]?.nominal ?: 1
+        _result.value = (firstCur / (rateSecond / nominalSecond)).toString()
+
         Log.d("Currencies", _result.value)
     }
 }
