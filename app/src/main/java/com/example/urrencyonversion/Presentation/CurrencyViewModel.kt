@@ -22,8 +22,11 @@ class CurrencyViewModel: ViewModel() {
     private val _amount = MutableStateFlow("")
     val amount: StateFlow<String> = _amount.asStateFlow()
 
-    private val _currentCurrency = MutableStateFlow("RUB (Российский рубль)")
-    val currentCurrency: StateFlow<String> = _currentCurrency.asStateFlow()
+    private val _currentFirstCurrency = MutableStateFlow("RUB (Российский рубль)")
+    val currentFirstCurrency: StateFlow<String> = _currentFirstCurrency.asStateFlow()
+
+    private val _currentSecondCurrency = MutableStateFlow("RUB (Российский рубль)")
+    val currentSecondCurrency: StateFlow<String> = _currentSecondCurrency.asStateFlow()
 
     private val _result = MutableStateFlow("")
     val result: StateFlow<String> = _result.asStateFlow()
@@ -45,9 +48,14 @@ class CurrencyViewModel: ViewModel() {
         }
     }
 
-    fun updateCurrency(newCurrency: String){
-        _currentCurrency.value = newCurrency
-        Log.d("Currencies", currencyRates.value[_currentCurrency.value].toString())
+    fun updateFirstCurrency(newCurrency: String){
+        _currentFirstCurrency.value = newCurrency
+        Log.d("Currencies", currencyRates.value[_currentFirstCurrency.value].toString())
+    }
+
+    fun updateSecondCurrency(newCurrency: String){
+        _currentSecondCurrency.value = newCurrency
+        Log.d("Currencies", currencyRates.value[_currentSecondCurrency.value].toString())
     }
 
     fun updateAmount(newAmount: String){
@@ -55,9 +63,9 @@ class CurrencyViewModel: ViewModel() {
     }
 
     fun calculation(){
-        val rate = _currencyRates.value[_currentCurrency.value]?.value ?: 1.0
+        val rate = _currencyRates.value[_currentFirstCurrency.value]?.value ?: 1.0
         val amountValue = _amount.value.toDoubleOrNull() ?: 0.0
-        val nominal = _currencyRates.value[_currentCurrency.value]?.nominal ?: 1
+        val nominal = _currencyRates.value[_currentFirstCurrency.value]?.nominal ?: 1
         _result.value = (amountValue / (rate / nominal)).toString()
         Log.d("Currencies", _result.value)
     }

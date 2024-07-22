@@ -16,7 +16,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,8 +41,11 @@ fun CurrencyScreen(
     val error by viewModel.error.collectAsState()
     var expanded1 by remember { mutableStateOf(false) }
     var expanded2 by remember { mutableStateOf(false) }
-    var text by rememberSaveable { mutableStateOf("") }
-    var currentCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
+    var amountFrom by rememberSaveable { mutableStateOf("") }
+    var amountTo by rememberSaveable { mutableStateOf("") }
+    var currentFirstCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
+    var currentSecondCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
+
 
     LaunchedEffect(Unit) {
         viewModel.fetchRates()
@@ -53,7 +55,7 @@ fun CurrencyScreen(
         contentAlignment = Alignment.Center // Центрирование содержимого внутри Box
     ) {
         Image(
-            painter = painterResource(id = R.drawable.baseline_currency_exchange_24), // Замените на вашу иконку
+            painter = painterResource(id = R.drawable.baseline_currency_exchange_24),
             contentDescription = "Centered Icon"
         )
     }
@@ -76,7 +78,7 @@ fun CurrencyScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 OutlinedTextField(
-                    value = currentCurrency,
+                    value = currentFirstCurrency,
                     label = { Text(text = "Валюта 1") },
                     onValueChange = {},
                     readOnly = true,
@@ -93,7 +95,8 @@ fun CurrencyScreen(
                                 Text("${item.key} (${item.value.name})")
                             },
                             onClick = {
-                                currentCurrency = "${item.key} (${item.value.name})"
+                                currentFirstCurrency = "${item.key} (${item.value.name})"
+                                viewModel.updateFirstCurrency(item.key)
                                 expanded1 = false
                             }
                         )
@@ -107,7 +110,7 @@ fun CurrencyScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 OutlinedTextField(
-                    value = currentCurrency,
+                    value = currentSecondCurrency,
                     label = { Text(text = "Валюта 2") },
                     onValueChange = {},
                     readOnly = true,
@@ -124,7 +127,8 @@ fun CurrencyScreen(
                                 Text("${item.key} (${item.value.name})")
                             },
                             onClick = {
-                                currentCurrency = "${item.key} (${item.value.name})"
+                                currentSecondCurrency = "${item.key} (${item.value.name})"
+                                viewModel.updateSecondCurrency(item.key)
                                 expanded2 = false
                             }
                         )
@@ -141,8 +145,8 @@ fun CurrencyScreen(
         ) {
             //TODO() Добавить запятые и не целые значения в форму
             OutlinedTextField(
-                value = text,
-                onValueChange = { newText -> if (newText.all { it.isDigit() }) text = newText },
+                value = amountFrom,
+                onValueChange = { newText -> if (newText.all { it.isDigit() }) amountFrom = newText },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = { Text("Начальная сумма") },
                 modifier = Modifier.weight(1f)
@@ -150,14 +154,17 @@ fun CurrencyScreen(
 
             //TODO() Добавить запятые и не целые значения в форму
             OutlinedTextField(
-                value = text,
-                onValueChange = { newText -> if (newText.all { it.isDigit() }) text = newText },
+                value = amountTo,
+                onValueChange = { newText -> if (newText.all { it.isDigit() }) amountTo = newText },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = { Text("Конечная сумма") },
                 modifier = Modifier.weight(1f)
             )
         }
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = {
+            viewModel.updateAmount(amountFrom)
+            viewModel.calculation()
+        }) {
             Text(text = "Convert")
         }
     }
