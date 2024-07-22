@@ -26,10 +26,10 @@ class CurrencyViewModel: ViewModel() {
     //val currentFirstCurrency: StateFlow<String> = _currentFirstCurrency.asStateFlow()
 
     private val _currentSecondCurrency = MutableStateFlow("RUB (Российский рубль)")
-    //val currentSecondCurrency: StateFlow<String> = _currentSecondCurrency.asStateFlow()
+    val currentSecondCurrency: StateFlow<String> = _currentSecondCurrency.asStateFlow()
 
     private val _result = MutableStateFlow("")
-    //val result: StateFlow<String> = _result.asStateFlow()
+    val result: StateFlow<String> = _result.asStateFlow()
 
     fun fetchRates() {
         viewModelScope.launch {

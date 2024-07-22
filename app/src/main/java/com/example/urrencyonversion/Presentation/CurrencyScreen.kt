@@ -44,9 +44,14 @@ fun CurrencyScreen(
     var amount by rememberSaveable { mutableStateOf("") }
     var currentFirstCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
     var currentSecondCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
+    var showDialog by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.fetchRates()
+    }
+
+    if (showDialog) {
+        ResultDialog(onDismissRequest = { showDialog = false }, viewModel)
     }
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -153,6 +158,7 @@ fun CurrencyScreen(
         Button(onClick = {
             viewModel.updateFirstAmount(amount)
             viewModel.calculation()
+            showDialog = true
         }) {
             Text(text = "Convert")
         }
