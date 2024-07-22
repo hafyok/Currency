@@ -16,6 +16,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,8 +40,9 @@ fun CurrencyScreen(
 ) {
     val rates by viewModel.currencyRates.collectAsState()
     val error by viewModel.error.collectAsState()
-    var expanded by remember { mutableStateOf(false) }
-    var amount by rememberSaveable { mutableStateOf("") }
+    var expanded1 by remember { mutableStateOf(false) }
+    var expanded2 by remember { mutableStateOf(false) }
+    var text by rememberSaveable { mutableStateOf("") }
     var currentCurrency by rememberSaveable { mutableStateOf("RUB (Российский рубль)") }
 
     LaunchedEffect(Unit) {
@@ -68,36 +70,23 @@ fun CurrencyScreen(
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp) // Отступ между элементами
         ) {
-            //TODO() Добавить запятые и не целые значения в форму
-            OutlinedTextField(
-                value = amount,
-                onValueChange = { newText -> if (newText.all { it.isDigit() }) amount = newText },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                //readOnly = true,
-                label = {
-                    if (error != null) Text("Error: $error")
-                    else Text("RUB (Российский рубль)")
-                },
-                modifier = Modifier.weight(1f)
-            )
-
             ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded },
+                expanded = expanded1,
+                onExpandedChange = { expanded1 = !expanded1 },
                 modifier = Modifier.weight(1f)
             ) {
                 OutlinedTextField(
                     value = currentCurrency,
-                    label = { Text(text = "Валюта") },
+                    label = { Text(text = "Валюта 1") },
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded1)
                     },
                     modifier = Modifier.menuAnchor()
                 )
 
-                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                ExposedDropdownMenu(expanded = expanded1, onDismissRequest = { expanded1 = false }) {
                     rates.forEach { item ->
                         DropdownMenuItem(
                             text = {
@@ -105,18 +94,70 @@ fun CurrencyScreen(
                             },
                             onClick = {
                                 currentCurrency = "${item.key} (${item.value.name})"
-                                expanded = false
-                                viewModel.updateCurrency(item.key)
+                                expanded1 = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            ExposedDropdownMenuBox(
+                expanded = expanded2,
+                onExpandedChange = { expanded2 = !expanded2 },
+                modifier = Modifier.weight(1f)
+            ) {
+                OutlinedTextField(
+                    value = currentCurrency,
+                    label = { Text(text = "Валюта 2") },
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded2)
+                    },
+                    modifier = Modifier.menuAnchor()
+                )
+
+                ExposedDropdownMenu(expanded = expanded2, onDismissRequest = { expanded2 = false }) {
+                    rates.forEach { item ->
+                        DropdownMenuItem(
+                            text = {
+                                Text("${item.key} (${item.value.name})")
+                            },
+                            onClick = {
+                                currentCurrency = "${item.key} (${item.value.name})"
+                                expanded2 = false
                             }
                         )
                     }
                 }
             }
         }
-        Button(onClick = {
-            viewModel.updateAmount(amount)
-            viewModel.calculation()
-        }) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp) // Отступ между элементами
+        ) {
+            //TODO() Добавить запятые и не целые значения в форму
+            OutlinedTextField(
+                value = text,
+                onValueChange = { newText -> if (newText.all { it.isDigit() }) text = newText },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = { Text("Начальная сумма") },
+                modifier = Modifier.weight(1f)
+            )
+
+            //TODO() Добавить запятые и не целые значения в форму
+            OutlinedTextField(
+                value = text,
+                onValueChange = { newText -> if (newText.all { it.isDigit() }) text = newText },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = { Text("Конечная сумма") },
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Button(onClick = { /*TODO*/ }) {
             Text(text = "Convert")
         }
     }
