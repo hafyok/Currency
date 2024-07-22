@@ -39,6 +39,7 @@ class CurrencyViewModel: ViewModel() {
                 }
                 if (response.isSuccessful) {
                     _currencyRates.value = response.body()?.valute ?: emptyMap()
+                    addRub()
                 } else {
                     _error.value = response.message()
                 }
@@ -46,6 +47,7 @@ class CurrencyViewModel: ViewModel() {
                 _error.value = e.message
             }
         }
+        Log.d("addRub", _currencyRates.value.toString())
     }
 
     fun updateFirstCurrency(newCurrency: String){
@@ -73,5 +75,24 @@ class CurrencyViewModel: ViewModel() {
         _result.value = (firstCur / (rateSecond / nominalSecond)).toString()
 
         Log.d("Currencies", _result.value)
+    }
+
+    //т.к. в API нет данных о рубле, как костыль решил добавить его вручную
+    private fun addRub(){
+        val key = "RUB"
+        val currencyRub = CurrencyInfo(
+            id = "", //данные не используются
+            numCode = "", //данные не используются
+            charCode = "RUB",
+            nominal = 1,
+            name = "Российский рубль",
+            value = 1.0,
+            previous = 1.0
+        )
+
+        val updatedRates = _currencyRates.value.toMutableMap()
+        updatedRates[key] = currencyRub
+
+        _currencyRates.value = updatedRates
     }
 }
